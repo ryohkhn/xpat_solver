@@ -1,2 +1,4 @@
 .merlin
 _build
+src/Fifo.cmi
+src/Fifo.cmo
