@@ -127,7 +127,6 @@ let shuffle_test = function
   @param list liste finale
   @param size nombre de paires créées *)
 let paires seed =
-
   let rec paires' comp1 comp2 lastComp list size =
     let paire_fun newComp2 = paires' ((comp1 + 21) mod 55)
         newComp2 comp2 ((comp1,comp2)::list) (size + 1)
