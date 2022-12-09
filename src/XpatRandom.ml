@@ -120,6 +120,12 @@ let shuffle_test = function
   | _ -> failwith "shuffle : unsupported number (TODO)"
 
 (* Crée une liste de 55 paires selon une graine *)
+(** Fonction récursive interne.
+  @param comp1 première composante du couple
+  @param comp2 seconde composante du couple
+  @param lastComp seconde composante précédente
+  @param list liste finale
+  @param size nombre de paires créées *)
 let paires seed =
 
   let rec paires' comp1 comp2 lastComp list size =
@@ -150,7 +156,7 @@ let listOfCouple paires =
   in
   List.rev (listOfCouple' paires [])
 
-(* Effectue n tirage(s) sur les files : file1,file2 *)
+(* Effectue n tirage(s) sur les FIFO *)
 let tirage file1 file2 n =
   let rec tirage' file1 file2 n d =
     if n = 0 then d,file1,file2
@@ -200,6 +206,8 @@ let shuffle n =
   let f2_init = Fifo.of_list firstSubList in
 
   let _,f1_165,f2_165 = tirage f1_init f2_init 165 in
-  let permutation_graine_n = listReduced f1_165 f2_165 (List.init 52 (fun x -> x)) in
+  let permutation_graine_n =
+    listReduced f1_165 f2_165 (List.init 52 (fun x -> x))
+  in
 
   permutation_graine_n
