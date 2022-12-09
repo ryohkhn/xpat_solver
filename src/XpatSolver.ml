@@ -1,5 +1,5 @@
-
 open XpatLib
+
 
 type game = Freecell | Seahaven | Midnight | Baker
 
@@ -16,6 +16,12 @@ let getgame = function
   | "MidnightOil"|"mo" -> Midnight
   | "BakersDozen"|"bd" -> Baker
   | _ -> raise Not_found
+
+let game_to_string = function
+  | Freecell -> "FreeCell"
+  | Seahaven -> "Seahaven"
+  | Midnight -> "MidnightOil"
+  | Baker -> "BakersDozen"
 
 let split_on_dot name =
   match String.split_on_char '.' name with
@@ -40,7 +46,11 @@ let treat_game conf =
   List.iter (fun n -> Printf.printf "%s " (Card.to_string (Card.of_num n)))
     permut;
   print_newline ();
-  print_string "C'est tout pour l'instant. TODO: continuer...\n";
+  Printf.printf "Game %s with seed %d \n" 
+    (game_to_string config.game) (config.seed) ;
+
+  let s = State.create_state "FreeCell" permut in
+  Printf.printf "%s\n" (State.state_to_string s) ; 
   exit 0
 
 let main () =
@@ -54,3 +64,5 @@ let main () =
   treat_game config
 
 let _ = if not !Sys.interactive then main () else ()
+
+

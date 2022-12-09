@@ -121,11 +121,7 @@ let shuffle_test = function
 
 (* Crée une liste de 55 paires selon une graine *)
 let paires seed =
-  (** Fonction récursive interne.
-  comp1,comp2 : première et seconde composante du couple
-  lastComp : seconde composante précédente
-  list : liste finale
-  size : nombre de paires créées *)
+
   let rec paires' comp1 comp2 lastComp list size =
     let paire_fun newComp2 = paires' ((comp1 + 21) mod 55)
         newComp2 comp2 ((comp1,comp2)::list) (size + 1)
