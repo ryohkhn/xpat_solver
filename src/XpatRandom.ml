@@ -193,13 +193,14 @@ let shuffle n =
     List.sort (fun (comp1,_) (comp1',_) -> compare comp1 comp1') (paires n)
   in
 
-  (* Liste des 24 premières paires *)
-  let firstSubList =
-    listOfCouple (List.filteri (fun i _ -> i>=0 && i<24) pairesList)
+  (* Liste de paires séparée entre les 24 premières paires et les 31 suivantes*)
+  let firstSubList,secondSubList =
+    State.split_list 24 pairesList
   in
-  (* Liste des 31 paires suivantes *)
-  let secondSubList =
-    listOfCouple (List.filteri (fun i _ -> i>=24) pairesList)
+
+  (* Listes des premières composantes des couples *)
+  let firstSubList,secondSubList =
+    listOfCouple firstSubList,listOfCouple secondSubList
   in
 
   let f1_init = Fifo.of_list secondSubList in
