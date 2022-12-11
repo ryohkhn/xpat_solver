@@ -35,15 +35,23 @@ let fill_col cols perm game =
          fill_aux cols (x+1) rest
   in fill_aux cols 0 perm
 
-  
+let fill_reg regs perm =
+  let () = Printf.printf "Filling regs\n" in
+  match perm with
+   a::[b] -> 
+    FArray.set (FArray.set regs 0 (Some (Card.of_num a)))
+      2 (Some(Card.of_num b))
+ | _ -> failwith "Error"
+
 
 let state_init x y perm game =
   let col, rest = fill_col (FArray.make x Fifo.empty) perm game in
   let reg =  
     if y = 0 then None 
-    else Some (FArray.make y None) in
-  (* TODO FILL REGISTRE SEAHAVEN *)
-    (*else fill_reg ( (FArray.make y None) rest) in*)
+    else if game = "Seahaven" then 
+      Some ( fill_reg (FArray.make y None) rest )
+    else Some (FArray.make y None) 
+  in
   let depot = [0;0;0;0] in
   let s = { colonnes =  col ; registres = reg ; 
   depot = depot ; nbCol = x ; nbReg = y } 
@@ -82,7 +90,7 @@ let cols_to_string cols =
     in str_aux cols 0
 
 let reg_to_string regs =
-  if regs = None then "Pas de registres\n" else
+  if regs = None then "Pas de registres\n\n" else
   "Registres : \n" ^
      let rec str_aux regs x =
          if x = FArray.length regs then "\n"
