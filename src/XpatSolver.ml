@@ -67,7 +67,7 @@ let treat_game conf =
        (Check.check x s (game_to_string conf.game)) (*TODO jalon 2 -> search*)
   in 
   if res = None || Option.get res = s then Printf.printf "ECHEC %d" n
-  else Printf.printf "SUCCESS"
+  else Printf.printf "SUCCES"
 
 let main () =
   Arg.parse

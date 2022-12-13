@@ -43,15 +43,16 @@ let verify_dest state x y game =
   else rec_verify_columns 0
 
 
+(* TODO Utiliser FArray.exists ? *)
 let pop_card state x =
   let rec rec_pop_cols n =
-    if n = state.nbCol then state
+    if n = state.nbCol then state,false
     else if List.hd(FArray.get state.colonnes n) = (int_of_string x) then
        { colonnes = FArray.set state.colonnes n 
                          (List.tl(FArray.get state.colonnes n));
             registres = state.registres ;
             depot = state.depot ;
-            nbCol = state.nbCol ; nbReg = state.nbReg}
+            nbCol = state.nbCol ; nbReg = state.nbReg},true
     else rec_pop_cols (n+1)
   in
   let rec rec_pop_regs n =
@@ -63,7 +64,7 @@ let pop_card state x =
           registres = Some (FArray.set
                               (Option.get state.registres) n None) ;
           depot = state.depot ;
-          nbCol = state.nbCol ; nbReg = state.nbReg}
+          nbCol = state.nbCol ; nbReg = state.nbReg},true
     else rec_pop_regs (n+1)
   in rec_pop_regs 0
 
@@ -111,7 +112,7 @@ let process_move state x y game=
   if verify_card state (int_of_string x) = false then (state,false)
   else if verify_dest state (int_of_string x) y game = false then (state,false)
   else
-    let tmp_state = pop_card state x in
+    let tmp_state,_ = pop_card state x in
     let new_state = push_card tmp_state (int_of_string x) y
     in
     (Option.get new_state,true)
@@ -143,8 +144,21 @@ let verify_move x y =
       if none possible -> end of loop
 *)
 let normalise state =
-
-  state
+  let rec normalise' state depot count = match depot with
+    | color::depot' ->
+      let new_state,bool = pop_card state (string_of_int color) in
+      let normalise_rec count' = normalise' new_state depot' count' in
+      if bool then
+        normalise_rec (count+1)
+      else
+        normalise_rec count
+    | [] ->
+      if count = 0 then
+        state
+      else
+        normalise' state state.depot 0
+  in
+  normalise' state state.depot 0
 
 
 
@@ -169,7 +183,8 @@ let check file start game =
     else
       let normalised_state = normalise state in
       read_line normalised_state (n+1);
-  in read_line (normalise start) 0
+  in
+  read_line (normalise start) 0
 
 
 (* What's left:
