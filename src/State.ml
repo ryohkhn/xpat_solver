@@ -1,4 +1,4 @@
-type state = { colonnes : (Card.card Fifo.t) FArray.t;
+type state = { colonnes : (int list) FArray.t;
                registres : (Card.card option) FArray.t option;
                depot : int list ;
                nbCol : int ; nbReg : int }
@@ -10,12 +10,6 @@ let split_list n list =
     | n,h::t -> split_rec (n-1) t (h::acc) 
   in split_rec n list []
 
-let fill_fifo list fifo =
-  let rec fill fifo list =
-    match list with
-      [] -> fifo
-    | h::t -> fill (Fifo.push (Card.of_num h) fifo) t
-  in fill fifo list
 
 let fill_col cols perm game =
   let f = 
@@ -30,8 +24,7 @@ let fill_col cols perm game =
        if x = FArray.length cols then cols,p
        else
          let curr,rest = split_list (f x) p in
-         let fifo = fill_fifo curr (FArray.get cols x) in
-         let cols = FArray.set cols x fifo in
+         let cols = FArray.set cols x (List.rev curr) in
          fill_aux cols (x+1) rest
   in fill_aux cols 0 perm
 
@@ -45,7 +38,7 @@ let fill_reg regs perm =
 
 
 let state_init x y perm game =
-  let col, rest = fill_col (FArray.make x Fifo.empty) perm game in
+  let col, rest = fill_col (FArray.make x []) perm game in
   let reg =  
     if y = 0 then None 
     else if game = "Seahaven" then 
@@ -83,9 +76,10 @@ let cols_to_string cols =
                 let rec one_col l = 
                   match l with
                   | [] -> "\n"
-                  | h::t -> (Card.to_string h) ^ " " ^ (one_col t)
+                  | h::t -> (Card.to_string (Card.of_num h)) 
+                            ^ " " ^ (one_col t)
                 in
-                one_col (Fifo.to_list ((FArray.get cols x)))
+                one_col (List.rev (FArray.get cols x))
                ^ str_aux cols (x+1) 
     in str_aux cols 0
 
@@ -103,16 +97,16 @@ let reg_to_string regs =
 
 
 let dep_to_string dep =
-    let trefle,carreau,coeur,pique = 
+    let trefle,pique,coeur,carreau = 
       match dep with
-        trefle::carreau::coeur::[pique] -> trefle,carreau,coeur,pique
+        trefle::pique::coeur::[carreau] -> trefle,pique,coeur,carreau
       | _ -> raise Not_found
     in
   "Depot : " ^
     string_of_int trefle ^ " trefle ; " ^
-    string_of_int carreau ^ " carreau ; " ^
+    string_of_int pique ^ " pique ; " ^
     string_of_int coeur ^ " coeur ; " ^
-    string_of_int pique ^ " pique \n" 
+    string_of_int carreau ^ " carreau \n" 
 
 
 let state_to_string state =

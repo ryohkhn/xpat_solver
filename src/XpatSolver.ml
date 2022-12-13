@@ -47,11 +47,27 @@ let treat_game conf =
     permut;
   print_newline ();
   Printf.printf "Game %s with seed %d \n" 
-    (game_to_string config.game) (config.seed) ;
+    (game_to_string conf.game) (conf.seed) ;
 
-  let s = State.create_state "FreeCell" permut in
-  Printf.printf "%s\n" (State.state_to_string s) ; 
-  exit 0
+
+
+  (*Temporary tests -> to remove*)
+  let s = State.create_state 
+            (game_to_string conf.game) permut in
+  Printf.printf "%s" (State.state_to_string s) ; 
+  (*let _ = conf.mode <- Check "tests/test.sol" in*)
+
+
+
+  let res,n =
+    match conf.mode with
+      Check x -> 
+       (Check.check x s (game_to_string conf.game))
+    | Search x -> 
+       (Check.check x s (game_to_string conf.game)) (*TODO jalon 2 -> search*)
+  in 
+  if res = None || Option.get res = s then Printf.printf "ECHEC %d" n
+  else Printf.printf "SUCCESS"
 
 let main () =
   Arg.parse
