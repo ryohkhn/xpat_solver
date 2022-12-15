@@ -47,6 +47,7 @@ let verify_dest state x y game =
 let pop_card state x =
   let rec rec_pop_cols n =
     if n = state.nbCol then state,false
+    (* TODO hd exception *)
     else if List.hd(FArray.get state.colonnes n) = (int_of_string x) then
        { colonnes = FArray.set state.colonnes n 
                          (List.tl(FArray.get state.colonnes n));
@@ -106,9 +107,7 @@ let push_card state x y =
 
 
 let process_move state x y game=
-  Printf.printf "Processing move %s -> %s\n"
-    (Card.to_string (Card.of_num (int_of_string x)))
-    y ;
+  
   if verify_card state (int_of_string x) = false then (state,false)
   else if verify_dest state (int_of_string x) y game = false then (state,false)
   else
@@ -117,21 +116,23 @@ let process_move state x y game=
     in
     (Option.get new_state,true)
 
-let different_colors card_src card_dest =
+(* TODO correct colors for each game*)
+let correct_colors card_src card_dest game =
   match (snd(card_src),snd(card_dest)) with
     (Trefle,Pique) | (Pique, Trefle) 
                      | (Carreau, Coeur) 
                      | (Coeur, Carreau) -> false
     | (x,y) -> if x = y then false else true
 
-let verify_move x y =
+let verify_move x y game = 
   if y = "V" || y = "T" then true
   else
     let card_src = Card.of_num (int_of_string x) in
     let card_dest = Card.of_num (int_of_string y) in
-
-    if different_colors card_src card_dest then false
-    else fst(card_src) = fst(card_dest) + 1
+    
+    if not (correct_colors card_src card_dest game) 
+    then false
+    else fst(card_src) = fst(card_dest) - 1
 
 
 
@@ -203,20 +204,22 @@ let check file start game =
       match String.split_on_char ' ' line with
       | [string1;string2] -> (string1,string2)
       | _ ->  "",""
+    
     in
-    if x = "" || not (verify_move x y) then (Some state),n
+
+    if x = "" || not (verify_move x y game) then (Some state),n
     else
     let new_state, result = process_move state x y game
     in
-    let _ = Printf.printf "New State : \n %s \n" (state_to_string state) 
+    let _ = Printf.printf "New State : \n %s \n" (state_to_string new_state) 
     in
     if result = false || state = new_state then
       (None,n)
     else
-      let normalised_state = normalise state in
+      let normalised_state = normalise new_state in
       read_line normalised_state (n+1);
   in
-  read_line (normalise start) 0
+  read_line (normalise start) 1
 
 (* What's left:
 

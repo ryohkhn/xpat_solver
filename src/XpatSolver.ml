@@ -1,6 +1,5 @@
 open XpatLib
 
-
 type game = Freecell | Seahaven | Midnight | Baker
 
 type mode =
@@ -36,9 +35,12 @@ let set_game_seed name =
   with _ -> failwith ("Error: <game>.<number> expected, with <game> in "^
                       "FreeCell Seahaven MidnightOil BakersDozen")
 
-(* TODO : La fonction suivante est à adapter et continuer *)
+let winning_state state =
+  let depots =  State.depot state in
+  depots = [13;13;13;13]
 
 let treat_game conf =
+  (*let _ = conf.seed <- 123456 in*)
   let permut = XpatRandom.shuffle conf.seed in
   Printf.printf "Voici juste la permutation de graine %d:\n" conf.seed;
   List.iter (fun n -> print_int n; print_string " ") permut;
@@ -55,7 +57,7 @@ let treat_game conf =
   let s = State.create_state 
             (game_to_string conf.game) permut in
   Printf.printf "%s" (State.state_to_string s) ; 
-  (*let _ = conf.mode <- Check "tests/test.sol" in*)
+  (*let _ = conf.mode <- Check "tests/I/bd123456.sol" in*)
 
 
 
@@ -67,7 +69,10 @@ let treat_game conf =
        (Check.check x s (game_to_string conf.game)) (*TODO jalon 2 -> search*)
   in 
   if res = None || Option.get res = s then Printf.printf "ECHEC %d" n
-  else Printf.printf "SUCCES"
+  else if winning_state (Option.get res) then Printf.printf "SUCCES"
+  else Printf.printf "ECHEC %d" n
+  ; 
+    exit n
 
 let main () =
   Arg.parse

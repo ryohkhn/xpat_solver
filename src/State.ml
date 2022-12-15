@@ -3,6 +3,9 @@ type state = { colonnes : (int list) FArray.t;
                depot : int list ;
                nbCol : int ; nbReg : int }
 
+let depot state =
+  state.depot
+
 let split_list n list =
   let rec split_rec n l acc =
     match n,l with

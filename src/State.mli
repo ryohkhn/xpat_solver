@@ -3,6 +3,8 @@ type state = { colonnes : (int list) FArray.t;
                depot : int list ;
                nbCol : int ; nbReg : int }
 
+val depot : state -> int list
+
 val split_list : int -> 'a list -> 'a list * 'a list
 
 val create_state : string -> int list -> state
