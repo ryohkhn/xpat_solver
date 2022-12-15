@@ -118,11 +118,18 @@ let process_move state x y game=
 
 (* TODO correct colors for each game*)
 let correct_colors card_src card_dest game =
+  if game = "BakersDozen" then true
+  else if game = "FreeCell" then
   match (snd(card_src),snd(card_dest)) with
     (Trefle,Pique) | (Pique, Trefle) 
                      | (Carreau, Coeur) 
                      | (Coeur, Carreau) -> false
-    | (x,y) -> if x = y then false else true
+    | (x,y) -> not (x = y)
+  else match (snd(card_src),snd(card_dest)) with
+    (Trefle,Pique) | (Pique, Trefle) 
+                     | (Carreau, Coeur) 
+                     | (Coeur, Carreau) -> false
+    | (x,y) -> x = y
 
 let verify_move x y game = 
   if y = "V" || y = "T" then true
@@ -221,16 +228,14 @@ let check file start game =
   in
   read_line (normalise start) 1
 
+
 (* What's left:
 
- -> Normaliser les depots
+ -> BakersDozen : 
+        - une colonne vide n'et pas remplissable
+        - au debut on descend les rois
 
- -> Verify that state is complete at the end
-
+ -> hd exception
  -> Tester
-
- -> Clean up
-
- -> Commenter
 
 *)

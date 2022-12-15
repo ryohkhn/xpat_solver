@@ -40,7 +40,9 @@ let winning_state state =
   depots = [13;13;13;13]
 
 let treat_game conf =
-  (*let _ = conf.seed <- 123456 in*)
+(*
+  let _ = conf.seed <- 123456 in
+  let _ = conf.game <- Baker in *)
   let permut = XpatRandom.shuffle conf.seed in
   Printf.printf "Voici juste la permutation de graine %d:\n" conf.seed;
   List.iter (fun n -> print_int n; print_string " ") permut;
