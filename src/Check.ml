@@ -128,7 +128,6 @@ let process_move state x y game=
     in
     (Option.get new_state,true)
 
-(* TODO correct colors for each game*)
 let correct_colors card_src card_dest game =
   if game = "BakersDozen" then true
   else if game = "FreeCell" then
@@ -167,9 +166,6 @@ let verify_move x y game =
     )
 
 let normalise state =
-  (*
-  print_string "ENTRE NORMALISE";
-  print_newline (); *)
   let update_state depot index =
     let trefle,pique,coeur,carreau = dep_to_int depot in
     match suit_of_num index with
@@ -191,23 +187,11 @@ let normalise state =
           nbReg = new_state.nbReg
         }
         in
-        (*
-        print_string ("NORMALISED DEPOT : " ^ dep_to_string new_state.depot);
-        print_newline ();
-        *)
         normalise_rec (count+1) new_state'
       else (
-        (*
-        print_string "dans NORMALISE NOT FOUND";
-        print_newline ();
-        *)
         normalise_rec count state
       )
     | [] ->
-      (*
-      print_string "dans NORMALISE TAB VIDE";
-      print_newline ();
-      *)
       if count = 0 then
         state
       else
@@ -242,12 +226,3 @@ let check file start game =
         read_line normalised_state (n+1);
   in
   read_line (normalise start) 1
-
-
-(* What's left:
-
-   -> hd exception
-
-   -> Tester
-
-*)
