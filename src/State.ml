@@ -13,31 +13,38 @@ let split_list n list =
     | n,h::t -> split_rec (n-1) t (h::acc) 
   in split_rec n list []
 
+let move_kings perm game =
+  if game <> "BakersDozen" then
+    perm
+  else
+    let kings,rest = List.partition (fun card -> fst(Card.of_num card) = 13 ) perm in
+    List.rev_append (List.rev kings) rest
 
 let fill_col cols perm game =
-  let f = 
-    match game with
-    | "FreeCell"->  (fun x -> if (x mod 2 = 0) then 7 else 6) 
-    | "Seahaven" ->  (fun x -> 5) 
+  let f = match game with
+    | "FreeCell" -> (fun x -> if (x mod 2 = 0) then 7 else 6)
+    | "Seahaven" -> (fun x -> 5)
     | "MidnightOil" -> (fun x -> 3)
     | "BakersDozen" -> (fun x -> 4)
     | _ -> raise Not_found
   in
+
   let rec fill_aux cols x p =
-       if x = FArray.length cols then cols,p
-       else
-         let curr,rest = split_list (f x) p in
-         let cols = FArray.set cols x (List.rev curr) in
-         fill_aux cols (x+1) rest
+    if x = FArray.length cols then cols,p
+    else
+      let curr,rest = split_list (f x) p in
+      let curr = move_kings curr game in
+      let cols = FArray.set cols x (List.rev curr) in
+      fill_aux cols (x+1) rest
   in fill_aux cols 0 perm
 
 let fill_reg regs perm =
   let () = Printf.printf "Filling regs\n" in
   match perm with
-   a::[b] -> 
+    a::[b] ->
     FArray.set (FArray.set regs 0 (Some (Card.of_num a)))
       2 (Some(Card.of_num b))
- | _ -> failwith "Error"
+  | _ -> failwith "Error"
 
 
 let state_init x y perm game =
