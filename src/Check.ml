@@ -144,21 +144,53 @@ let verify_move x y =
       if none possible -> end of loop
 *)
 let normalise state =
-  let rec normalise' state depot count = match depot with
+  (*
+  print_string "ENTRE NORMALISE";
+  print_newline (); *)
+  let update_state depot index =
+    let trefle,pique,coeur,carreau = dep_to_int depot in
+    match suit_of_num index with
+    | Trefle -> (trefle+1)::pique::coeur::[carreau]
+    | Pique -> trefle::(pique+1)::coeur::[carreau]
+    | Coeur -> trefle::pique::(coeur+1)::[carreau]
+    | Carreau -> trefle::pique::coeur::[(carreau+1)]
+  in
+  let rec normalise' state depot count index = match depot with
     | color::depot' ->
-      let new_state,bool = pop_card state (string_of_int color) in
-      let normalise_rec count' = normalise' new_state depot' count' in
+      let new_state,bool = pop_card state (string_of_int (to_num (color+1, suit_of_num index))) in
+      let normalise_rec count' new_state' = normalise' new_state' depot' count' (index+1) in
       if bool then
-        normalise_rec (count+1)
-      else
-        normalise_rec count
+        let new_state' = {
+          colonnes = new_state.colonnes;
+          registres = new_state.registres ;
+          depot = update_state (new_state.depot) index;
+          nbCol = new_state.nbCol ;
+          nbReg = new_state.nbReg
+        }
+        in
+        (*
+        print_string ("NORMALISED DEPOT : " ^ dep_to_string new_state.depot);
+        print_newline ();
+        *)
+        normalise_rec (count+1) new_state'
+      else (
+        (*
+        print_string "dans NORMALISE NOT FOUND";
+        print_newline ();
+        *)
+        normalise_rec count state
+      )
     | [] ->
+      (*
+      print_string "dans NORMALISE TAB VIDE";
+      print_newline ();
+      *)
       if count = 0 then
         state
       else
-        normalise' state state.depot 0
+        normalise' state state.depot 0 0
   in
-  normalise' state state.depot 0
+  normalise' state state.depot 0 0
 
 
 
@@ -185,7 +217,6 @@ let check file start game =
       read_line normalised_state (n+1);
   in
   read_line (normalise start) 0
-
 
 (* What's left:
 
