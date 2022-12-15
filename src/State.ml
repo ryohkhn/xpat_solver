@@ -95,13 +95,12 @@ let reg_to_string regs =
                         else Card.to_string (Option.get entry) ^ "\n" ^ str_aux regs (x+1) 
     in str_aux (Option.get regs) 0
 
+let dep_to_int dep = match dep with
+  | trefle::pique::coeur::[carreau] -> trefle,pique,coeur,carreau
+  | _ -> raise Not_found
 
 let dep_to_string dep =
-    let trefle,pique,coeur,carreau = 
-      match dep with
-        trefle::pique::coeur::[carreau] -> trefle,pique,coeur,carreau
-      | _ -> raise Not_found
-    in
+  let trefle,pique,coeur,carreau=dep_to_int dep in
   "Depot : " ^
     string_of_int trefle ^ " trefle ; " ^
     string_of_int pique ^ " pique ; " ^
