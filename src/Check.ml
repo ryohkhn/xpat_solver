@@ -143,19 +143,14 @@ let correct_colors card_src card_dest game =
     | (x,y) -> x = y
 
 let verify_move x y game =
-  Printf.printf "Processing move %s -> "
-    (Card.to_string (Card.of_num (int_of_string x)));
+  (*Printf.printf "Processing move %s -> "
+    (Card.to_string (Card.of_num (int_of_string x)));*)
 
   if y = "V" || y = "T" then
-    (
-    Printf.printf "%s\n" y;
-    print_newline ();
     true
-    )
+
   else
     (
-    Printf.printf "%s\n" (Card.to_string (Card.of_num (int_of_string y)));
-    print_newline ();
     let card_src = Card.of_num (int_of_string x) in
     let card_dest = Card.of_num (int_of_string y) in
 

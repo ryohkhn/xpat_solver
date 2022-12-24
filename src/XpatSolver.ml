@@ -59,8 +59,7 @@ let treat_game conf =
   let s = State.create_state 
             (game_to_string conf.game) permut in
   Printf.printf "%s" (State.state_to_string s) ; 
-  (*let _ = conf.mode <- Check "tests/I/bd123456.sol" in*)
-
+  let _ = conf.mode <- Search "tests/I/bd123456.sol" in
 
 
   let res,n =
@@ -68,7 +67,7 @@ let treat_game conf =
       Check x -> 
        (Check.check x s (game_to_string conf.game))
     | Search x -> 
-       (Check.check x s (game_to_string conf.game)) (*TODO jalon 2 -> search*)
+       (Solve.solve s (game_to_string conf.game)) (*TODO jalon 2 -> search*)
   in 
   if res = None || Option.get res = s then Printf.printf "ECHEC %d" n
   else if winning_state (Option.get res) then Printf.printf "SUCCES"

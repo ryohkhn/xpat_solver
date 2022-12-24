@@ -1,0 +1,92 @@
+open State
+open Card
+(*TODO prochain_etats, liste de string*string des coups
+legaux depuis state
+ -> check for free registers :
+ -> a possible move from each column head towards the register
+ -> check for column moves :
+ -> for each column head with a card, if there exists a free column, card * "V"
+ -> then test every other head for valid moves
+*)
+
+let legal_moves_to_registers state =
+  let rec free_registres state n =
+    if n = state.nbReg then false
+    else if (FArray.get (Option.get state.registres) n) = None then
+      true
+    else free_registres state (n+1)
+  in
+  if(free_registres state 0) then
+    (*Iterate column heads for possible moves towards registry*)
+    let rec reg_moves state n acc =
+       if n = state.nbCol then acc
+       else
+         if FArray.get state.colonnes n = [] then
+           reg_moves state (n+1) acc
+         else
+           let card = (List.hd(FArray.get state.colonnes n)) in
+           let move = (string_of_int card) ^ " T" in
+            reg_moves state (n+1) (move::acc)
+      in reg_moves state 0 []
+  else []
+
+let legal_moves_to_empty state list=
+  let rec free_columns state n =
+     if n = state.nbCol then false
+     else if FArray.get state.colonnes n = [] then true
+     else free_columns state (n+1)
+  in 
+  if(free_columns state 0) then
+    let rec empty_col_moves state n acc =
+      if n = state.nbCol then acc
+      else
+        if FArray.get state.colonnes n = [] then
+          empty_col_moves state (n+1) acc
+        else
+          let card = (List.hd(FArray.get state.colonnes n)) in
+          let move = (string_of_int card) ^ " V" in
+          empty_col_moves state (n+1) (move::acc)
+    in empty_col_moves state 0 list
+  else list
+
+let legal_column_moves state list game =
+  let rec column_moves state n acc =
+     if n = state.nbCol then acc
+     else if FArray.get state.colonnes n = [] then column_moves state (n+1) acc
+     else
+       let card = (List.hd(FArray.get state.colonnes n)) in
+       let rec moves_aux state x card acc2 =
+         if x = state.nbCol then acc2
+         else if FArray.get state.colonnes x = [] then moves_aux state (x+1) card acc2
+         else
+           let dest_card =  (List.hd(FArray.get state.colonnes x)) in
+           if card = dest_card then moves_aux state (x+1) card acc2
+           else
+             let move = (string_of_int card) ^ " " ^ 
+                          (string_of_int dest_card) in
+             let result =
+               Check.verify_move (string_of_int card) (string_of_int dest_card) game
+             in
+             let new_acc =
+               if result then (move::acc2)
+               else acc2
+             in moves_aux state (x+1) card new_acc
+       in column_moves state (n+1) (moves_aux state 0 card acc)
+  in column_moves state 0 list
+
+
+let legal_moves state game =
+ let list =
+  legal_moves_to_empty state (legal_moves_to_registers state) in
+  legal_column_moves state list game
+
+let rec print_moves moves =
+  match moves with
+    [] -> None
+  | h::t -> let _ = Printf.printf "%s\n" h in print_moves t
+
+
+let solve state game =
+  let moves = legal_moves state game in
+  let _ = print_moves moves in
+  None,0
