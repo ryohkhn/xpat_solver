@@ -1,12 +1,39 @@
 open State
 open Card
-(*TODO prochain_etats, liste de string*string des coups
-legaux depuis state
- -> check for free registers :
- -> a possible move from each column head towards the register
- -> check for column moves :
- -> for each column head with a card, if there exists a free column, card * "V"
- -> then test every other head for valid moves
+(*
+legal_moves state game donne les coups possibles depuis un state
+
+dans la fonction principale:
+
+-> un Set des etats deja vu
+
+-> un Set des etats possibles mais pas vu (au debut: le state initial)
+
+-> une boucle qui:
+
+1) choisit un etat parmi le Set possible, probablement celui avec le score le plus haut
+
+2) utilise legal_moves pour avoir toutes les etats possibles
+
+3) parmi ces etats, un par un on decide si on les ajoute au etat possible
+pour decider si on ajoute un etat, il faut etre sur que cet etat n'existe pas dans le Set deja vu
+-> il faut bien le comparer avec toutes les etats deja vus ( il suffit pas de comparer les historiques )
+on va utiliser:
+module States = Set.Make (struct type t = state let compare = compare_state end)
+alors il faut bien definir compare_state
+
+4) si on decide d'ajouter cet etat, il faut mettre a jour l'historique -> l'historique d'etat precedent + le coup courant
+
+5) on enleve l'etat choisit dans l'etape 1 du set possible et on le mets dans le set deja vu
+
+on arrete la boucle dans deux cas:
+l'etat de l'etape 1 est complet -> solution trouve
+ou bien il n'y a plus d'etats possibles -> pas de solution
+
+
+Possibles ameliorations:
+"si on a déjà trouvé un état de score 30, il est en effet peu probable que les états de score moins de 20 soit encore utiles pour cette recherche
+(on pourra alors paramétrer cet écart via une option du programme). Une telle "distance d'oubli". "
 *)
 
 let legal_moves_to_registers state =
