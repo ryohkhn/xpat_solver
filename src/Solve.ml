@@ -98,8 +98,8 @@ let legal_moves_to_empty state list=
     let rec empty_col_moves state n acc =
       if n = state.nbCol then acc
       else
-        if FArray.get state.colonnes n = [] then
-          empty_col_moves state (n+1) acc
+        if List.length (FArray.get state.colonnes n) < 2
+        then empty_col_moves state (n+1) acc
         else
           let card = (List.hd(FArray.get state.colonnes n)) in
           let move = (string_of_int card) ^ " V" in
