@@ -35,6 +35,11 @@ Possibles ameliorations:
 "si on a déjà trouvé un état de score 30, il est en effet peu probable que les états de score moins de 20 soit encore utiles pour cette recherche
 (on pourra alors paramétrer cet écart via une option du programme). Une telle "distance d'oubli". "
 *)
+let compare_state a b=
+  0
+
+module States = Set.Make (struct type t = state let compare = compare_state end)
+
 
 let legal_moves_to_registers state =
   let rec free_registres state n =
@@ -89,7 +94,7 @@ let legal_column_moves state list game =
            let dest_card =  (List.hd(FArray.get state.colonnes x)) in
            if card = dest_card then moves_aux state (x+1) card acc2
            else
-             let move = (string_of_int card) ^ " " ^ 
+             let move = (string_of_int card) ^ " " ^
                           (string_of_int dest_card) in
              let result =
                Check.verify_move (string_of_int card) (string_of_int dest_card) game
@@ -114,6 +119,9 @@ let rec print_moves moves =
 
 
 let solve state game =
+  let oldStates = States.empty in
+  let possibleStates = States.(empty |> add state) in
+
   let moves = legal_moves state game in
   let _ = print_moves moves in
   None,0
