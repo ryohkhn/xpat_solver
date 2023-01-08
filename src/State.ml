@@ -1,7 +1,8 @@
 type state = { colonnes : (int list) FArray.t;
                registres : (Card.card option) FArray.t option;
                depot : int list ;
-               nbCol : int ; nbReg : int }
+               nbCol : int ; nbReg : int ;
+               history : string list option }
 
 let depot state =
   state.depot
@@ -57,7 +58,7 @@ let state_init x y perm game =
   in
   let depot = [0;0;0;0] in
   let s = { colonnes =  col ; registres = reg ; 
-  depot = depot ; nbCol = x ; nbReg = y } 
+  depot = depot ; nbCol = x ; nbReg = y ; history = None } 
   in s
 
 let create_state game perm = 

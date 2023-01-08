@@ -1,7 +1,8 @@
 type state = { colonnes : (int list) FArray.t;
                registres : (Card.card option) FArray.t option;
                depot : int list ;
-               nbCol : int ; nbReg : int }
+               nbCol : int ; nbReg : int ; history : string list option
+	}
 
 val depot : state -> int list
 

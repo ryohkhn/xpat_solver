@@ -35,8 +35,26 @@ Possibles ameliorations:
 "si on a déjà trouvé un état de score 30, il est en effet peu probable que les états de score moins de 20 soit encore utiles pour cette recherche
 (on pourra alors paramétrer cet écart via une option du programme). Une telle "distance d'oubli". "
 *)
-let compare_state a b=
-  0
+
+
+(*
+Maintenant, quelle comparaison compare_state doit-on utiliser ?
+OCaml propose une comparaison générique nommée Stdlib.compare qui est souvent convenable.
+Mais ici on vous propose de mettre un historique des coups dans chaque état.
+Or deux historiques différents peuvent pourtant mener à des états
+rigoureusement identiques à part ça (mêmes colonnes, mêmes registres, et donc mêmes dépôts).
+Pour le bon fonctionnement de l'algorithme de recherche, il est alors crucial que dans ce cas compare_state réponde une égalité (code 0).
+Bref, pour compare_state, au lieu de comparer deux états entiers directement via Stdlib.compare,
+on pourra comparer leurs zones de registres respectives (p.ex. par Stdlib.compare),
+et en cas d'égalité seulement comparer leurs zones de colonnes respectives (via un autre Stdlib.compare). Et rien de plus.
+*)
+
+let compare_state a b =
+  (* if( Stdlib.compare a.history b.history = 0) then 0 else *)
+  match Stdlib.compare a.registres b.registres with
+    | 0 -> 0 (*TODO comparer colonnes*)
+    | c -> c
+
 
 module States = Set.Make (struct type t = state let compare = compare_state end)
 
@@ -67,7 +85,7 @@ let legal_moves_to_empty state list=
      if n = state.nbCol then false
      else if FArray.get state.colonnes n = [] then true
      else free_columns state (n+1)
-  in 
+  in
   if(free_columns state 0) then
     let rec empty_col_moves state n acc =
       if n = state.nbCol then acc

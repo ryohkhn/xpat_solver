@@ -63,7 +63,8 @@ let pop_card state x =
            registres = state.registres;
            depot = state.depot;
            nbCol = state.nbCol;
-           nbReg = state.nbReg},true
+           nbReg = state.nbReg;
+           history = None},true
         else rec_pop_cols (n+1)
       with Failure _ -> rec_pop_cols (n+1)
   in
@@ -76,14 +77,16 @@ let pop_card state x =
         registres = Some (FArray.set
                             (Option.get state.registres) n None) ;
         depot = state.depot ;
-        nbCol = state.nbCol ; nbReg = state.nbReg},true
+        nbCol = state.nbCol ;
+        nbReg = state.nbReg ;
+        history = None},true
     else rec_pop_regs (n+1)
   in rec_pop_regs 0
 
 
 let push_card state x y =
   let card = Card.of_num x in
-  if y = "T" then  
+  if y = "T" then
     let rec rec_push_regs n =
       if  n = state.nbReg then None
       else if (FArray.get (Option.get state.registres) n) = None
@@ -92,7 +95,8 @@ let push_card state x y =
           registres = Some (FArray.set
                               (Option.get state.registres) n (Some card)) ;
           depot = state.depot ;
-          nbCol = state.nbCol ; nbReg = state.nbReg}
+          nbCol = state.nbCol ; nbReg = state.nbReg ;
+          history = None }
       else rec_push_regs (n+1)
     in rec_push_regs 0
   else
@@ -105,14 +109,18 @@ let push_card state x y =
           { colonnes = FArray.set state.colonnes n [x];
             registres = state.registres ;
             depot = state.depot ;
-            nbCol = state.nbCol ; nbReg = state.nbReg}
+            nbCol = state.nbCol ;
+            nbReg = state.nbReg ;
+            history = None }
         else if y <> "V" && List.hd col = int_of_string y
-        then 
-          { colonnes = FArray.set state.colonnes n 
+        then
+          { colonnes = FArray.set state.colonnes n
                          (x::(FArray.get state.colonnes n));
             registres = state.registres ;
             depot = state.depot ;
-            nbCol = state.nbCol ; nbReg = state.nbReg}
+            nbCol = state.nbCol ;
+            nbReg = state.nbReg ;
+            history = None}
         else rec_push_columns (n+1)
       with Failure _ | Not_found -> rec_push_columns (n+1)
   in Some (rec_push_columns 0)
@@ -179,7 +187,8 @@ let normalise state =
           registres = new_state.registres ;
           depot = update_state (new_state.depot) index;
           nbCol = new_state.nbCol ;
-          nbReg = new_state.nbReg
+          nbReg = new_state.nbReg ;
+          history = None
         }
         in
         normalise_rec (count+1) new_state'
