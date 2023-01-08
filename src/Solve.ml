@@ -50,9 +50,17 @@ et en cas d'égalité seulement comparer leurs zones de colonnes respectives (vi
 *)
 
 let compare_state a b =
-  (* if( Stdlib.compare a.history b.history = 0) then 0 else *)
+  if( Stdlib.compare a.history b.history = 0) then 0 else
+
+  let rec compare_cols n =
+     if n = a.nbCol then 0
+     else
+       match Stdlib.compare (FArray.get a.colonnes n) (FArray.get b.colonnes n) with
+       | 0 -> compare_cols (n+1)
+       | c -> c
+  in
   match Stdlib.compare a.registres b.registres with
-    | 0 -> 0 (*TODO comparer colonnes*)
+    | 0 -> compare_cols 0
     | c -> c
 
 
