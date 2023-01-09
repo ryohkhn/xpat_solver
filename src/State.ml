@@ -69,6 +69,11 @@ let create_state game perm =
   | "BakersDozen" -> state_init 13 0 perm game
   | _ -> raise Not_found
 
+let empty_state =
+  { colonnes = FArray.make 1 []; registres = None;
+  depot = [0]; nbCol = 0 ; nbReg = 0 ; history = None }
+
+
 (* Print functions *)
 
 let une_colonne_to_string colonne =

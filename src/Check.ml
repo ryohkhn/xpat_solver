@@ -125,7 +125,6 @@ let push_card state x y =
       with Failure _ | Not_found -> rec_push_columns (n+1)
   in Some (rec_push_columns 0)
 
-
 let process_move state x y game=
   
   if verify_card state (int_of_string x) = false then (state,false)
@@ -203,6 +202,21 @@ let normalise state =
   in
   normalise' state state.depot 0 0
 
+let add_to_history state move =
+  let new_history = match state.history with
+    | Some h -> Some (move::h)
+    | None -> Some [move]
+  in
+  {colonnes = state.colonnes;
+   registres = state.registres;
+   depot = state.depot;
+   nbCol = state.nbCol;
+   nbReg = state.nbReg;
+   history = new_history}
+
+let split_move line = match String.split_on_char ' ' line with
+  | [string1;string2] -> (string1,string2)
+  | _ ->  "",""
 
 
 let check file start game =
@@ -211,9 +225,7 @@ let check file start game =
     let line = try input_line in_ch with End_of_file -> ""
     in
     let x,y =
-      match String.split_on_char ' ' line with
-      | [string1;string2] -> (string1,string2)
-      | _ ->  "",""
+      split_move line
     in
 
     if x = "" || not (verify_move x y game) then

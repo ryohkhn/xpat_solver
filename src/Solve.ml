@@ -1,5 +1,6 @@
 open State
 open Card
+
 (*
 legal_moves state game donne les coups possibles depuis un state
 
@@ -50,16 +51,17 @@ et en cas d'égalité seulement comparer leurs zones de colonnes respectives (vi
 *)
 
 let compare_state a b =
-  if( Stdlib.compare a.history b.history = 0) then 0 else
-
-  let rec compare_cols n =
-     if n = a.nbCol then 0
-     else
-       match Stdlib.compare (FArray.get a.colonnes n) (FArray.get b.colonnes n) with
-       | 0 -> compare_cols (n+1)
-       | c -> c
-  in
-  match Stdlib.compare a.registres b.registres with
+  if( Stdlib.compare a.history b.history = 0) then
+    0
+  else
+    let rec compare_cols n =
+      if n = a.nbCol then 0
+      else
+        match Stdlib.compare (FArray.get a.colonnes n) (FArray.get b.colonnes n) with
+        | 0 -> compare_cols (n+1)
+        | c -> c
+    in
+    match Stdlib.compare a.registres b.registres with
     | 0 -> compare_cols 0
     | c -> c
 
@@ -134,20 +136,95 @@ let legal_column_moves state list game =
 
 
 let legal_moves state game =
- let list =
-  legal_moves_to_empty state (legal_moves_to_registers state) in
+  let list =
+    legal_moves_to_empty state (legal_moves_to_registers state)
+  in
   legal_column_moves state list game
 
-let rec print_moves moves =
+let rec legal_moves_to_states seen_states possible_states initial_state moves =
   match moves with
-    [] -> None
-  | h::t -> let _ = Printf.printf "%s\n" h in print_moves t
+  | [] -> seen_states,possible_states
+  | x::moves' ->
+    let x,y = Check.split_move x in
+    let new_state = Option.get (Check.push_card initial_state (int_of_string x) y) in
+    if not(States.mem new_state seen_states) then
+      let new_state = Check.normalise new_state in
+      let new_state = Check.add_to_history new_state x in
+      let possible_states = States.add new_state possible_states in
+      legal_moves_to_states seen_states possible_states initial_state moves'
+    else
+      legal_moves_to_states seen_states possible_states initial_state moves'
 
+
+let get_scores state =
+  List.fold_left (+) 0 (state.depot)
+
+
+let get_biggest_score possible_states =
+  States.fold
+    (fun x acc ->
+       if get_scores acc > get_scores x then
+         acc
+       else
+         x
+    )
+    possible_states State.empty_state
+
+let print_moves moves =
+  let _ = Printf.printf "Coups possibles :\n" in
+  let rec print_moves' moves =
+    match moves with
+      [] -> None
+    | h::t -> let _ = Printf.printf "%s\n" h in print_moves' t
+  in
+  print_moves' moves
+
+
+let rec solve' state game seen_states possible_states =
+  (* récursion sur tous les états possibles *)
+  let rec solve'' possible_states =
+    (* si n'il y a plus d'états possibles on renvoit None *)
+    if States.is_empty possible_states then
+      (None,1)
+    else
+      (* on choisit l'état avec le score le plus élevé *)
+      let new_state = get_biggest_score possible_states in
+
+      print_string (State.state_to_string new_state);
+
+      (* on appelle récursivement solve' sur cet état*)
+      let ret_state,value = solve' new_state game seen_states (States.(empty |> add new_state)) in
+      (* si ce chemin n'a donné aucun résultat on appelle solve'' sur l'état possible suivant *)
+      if ret_state = None then
+        (* on retire l'état précédent de la liste des états possibles *)
+        let possible_states = States.remove new_state possible_states in
+        solve'' possible_states
+      else
+        ret_state,value
+  in
+  (* Si l'état est terminé alors on quitte le solveur *)
+  if get_scores state = 52 then
+    Some state,0
+  else
+    (* on récupère tous les coups possibles *)
+    let moves = legal_moves state game in
+
+    let _ = print_moves moves in
+
+    (* on ajoute aux états vus l'état courant *)
+    let seen_states = States.add state seen_states in
+    (* on ajoute aux états possibles les états ne faisant pas partie des états vus *)
+    let seen_states,possible_states =
+      legal_moves_to_states seen_states possible_states state moves
+    in
+    (* Si aucune prochaine branche est possible on arrête *)
+    if States.is_empty possible_states then
+      (None,1)
+    else
+      solve'' possible_states
 
 let solve state game =
-  let oldStates = States.empty in
-  let possibleStates = States.(empty |> add state) in
-
-  let moves = legal_moves state game in
-  let _ = print_moves moves in
-  None,0
+  let state = Check.normalise state in
+  let seen_states = States.empty in
+  let possible_states = States.(empty |> add state) in
+  solve' state game seen_states possible_states

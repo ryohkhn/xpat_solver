@@ -64,10 +64,10 @@ let treat_game conf =
 
   let res,n =
     match conf.mode with
-      Check x -> 
+    | Check x ->
        (Check.check x s (game_to_string conf.game))
     | Search x -> 
-       (Solve.solve s (game_to_string conf.game)) (*TODO jalon 2 -> search*)
+       (Solve.solve s (game_to_string conf.game))
   in 
   if res = None || Option.get res = s then Printf.printf "ECHEC %d" n
   else if winning_state (Option.get res) then Printf.printf "SUCCES"
