@@ -62,7 +62,7 @@ let treat_game conf =
   let s = State.create_state
             (game_to_string conf.game) permut in
   Printf.printf "%s" (State.state_to_string s) ;
-  let _ = conf.mode <- Search "tests/I/bd123456.sol" in
+  let _ = conf.mode <- Search "out.sol" in
 
 
 
@@ -76,7 +76,9 @@ let treat_game conf =
   | Search x ->
      let res,n = (Solve.solve s (game_to_string conf.game)) in
      if n = 1 then Printf.printf "INSOLUBLE"
-     else Printf.printf "SUCCESS"
+     else let _ = Printf.printf "SUCCESS" in
+          let oc = open_out x in
+          Printf.fprintf oc "%s\n" (State.history_to_string (Option.get res).history);
      (*TODO handle n = 2 , write to out.sol *)
      ; exit n
 

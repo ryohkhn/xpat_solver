@@ -14,6 +14,8 @@ val empty_state : state
 
 val test_state : int -> state
 
+val history_to_string : string list option -> string
+
 val state_to_string : state -> string
 
 val dep_to_int : 'a list -> 'a * 'a * 'a * 'a
