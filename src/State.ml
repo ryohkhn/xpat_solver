@@ -130,7 +130,7 @@ let dep_to_string dep =
 let history_to_string history =
   if history = None then ""
   else
-    let moves = List.fold_left ( fun x y -> x ^ "\n" ^ y ) "" (Option.get history) in
+    let moves = List.fold_left ( fun x y -> x ^ "\n" ^ y ) "" (List.rev (Option.get history)) in
     "History: \n" ^ moves ^ "\n"
 
 let state_to_string state =

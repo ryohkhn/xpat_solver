@@ -316,10 +316,13 @@ let rec solve' state game seen_states possible_states =
       (* on choisit l'état avec le score le plus élevé *)
       let new_state = get_biggest_score possible_states in
       (* on retire l'état précédent de la liste des états possibles *)
+      let _ = Printf.printf "\n***\nAvant :" in
+      let _ = print_states possible_states in
       let possible_states = States.remove new_state possible_states in
+      let _ = Printf.printf "Apres :" in
+      let _ = print_states possible_states in
 
-      (*
-      Printf.printf "état avec le plus grand score = %d\n" (get_scores new_state);
+      (* Printf.printf "état avec le plus grand score = %d\n" (get_scores new_state);
       print_string (State.state_to_string new_state); *)
 
       (* on appelle récursivement solve' sur cet état *)
@@ -342,13 +345,13 @@ let rec solve' state game seen_states possible_states =
     (* on récupère tous les coups possibles *)
     let moves = legal_moves state game in
 
-    (*let _ = print_moves moves in*)
+    let _ = print_moves moves in
 
     (* on ajoute aux états possibles les états ne faisant pas partie des états vus *)
     let possible_states =
       legal_moves_to_states seen_states possible_states state moves
     in
-    (*print_states seen_states;*)
+    print_states seen_states;
     (* Si aucune prochaine branche est possible on arrête *)
     if States.is_empty possible_states then
       None,1,seen_states
