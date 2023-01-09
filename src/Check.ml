@@ -162,8 +162,10 @@ let verify_move x y game =
   (*Printf.printf "Processing move %s -> "
     (Card.to_string (Card.of_num (int_of_string x)));*)
 
-  if y = "V" || y = "T" then
+  if y = "T" then
     true
+  else if y = "V" then
+    (game <> "MidnightOil" && game <> "mo")
 
   else
     (

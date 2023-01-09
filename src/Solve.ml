@@ -101,7 +101,8 @@ let legal_moves_to_registers state =
       in reg_moves state 0 []
   else []
 
-let legal_moves_to_empty state list=
+let legal_moves_to_empty state list game=
+  if (game = "MidnightOil" || game = "mo") then list else
   let rec free_columns state n =
      if n = state.nbCol then false
      else if FArray.get state.colonnes n = [] then true
@@ -148,7 +149,7 @@ let legal_column_moves state list game =
 
 let legal_moves state game =
   let list =
-    legal_moves_to_empty state (legal_moves_to_registers state)
+    legal_moves_to_empty state (legal_moves_to_registers state) game
   in
   legal_column_moves state list game
 
@@ -347,7 +348,7 @@ let rec solve' state game seen_states possible_states =
     let possible_states =
       legal_moves_to_states seen_states possible_states state moves
     in
-    print_states seen_states;
+    (*print_states seen_states;*)
     (* Si aucune prochaine branche est possible on arrête *)
     if States.is_empty possible_states then
       None,1,seen_states
@@ -361,4 +362,5 @@ let solve state game =
   let seen_states = States.empty in
   let possible_states = States.(empty |> add state) in
   let state,re_val,_ = solve' state game seen_states possible_states in
+  let _ = print_string (State.state_to_string (Option.get state)) in
   (state,re_val)

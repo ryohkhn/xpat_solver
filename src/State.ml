@@ -127,8 +127,14 @@ let dep_to_string dep =
     string_of_int coeur ^ " coeur ; " ^
     string_of_int carreau ^ " carreau \n"
 
+let history_to_string history =
+  if history = None then ""
+  else
+    let moves = List.fold_left ( fun x y -> x ^ "\n" ^ y ) "" (Option.get history) in
+    "History: \n" ^ moves ^ "\n"
 
 let state_to_string state =
   cols_to_string state.colonnes
   ^ reg_to_string state.registres
   ^ dep_to_string state.depot
+  ^ history_to_string state.history
