@@ -50,7 +50,11 @@ on pourra comparer leurs zones de registres respectives (p.ex. par Stdlib.compar
 et en cas d'égalité seulement comparer leurs zones de colonnes respectives (via un autre Stdlib.compare). Et rien de plus.
 *)
 
+let get_scores state =
+  List.fold_left (+) 0 (state.depot)
+
 let compare_state a b =
+  if (get_scores a <> get_scores b) then 1 else
   if(Stdlib.compare a.history b.history = 0) then
     0
   else
@@ -290,11 +294,6 @@ let rec legal_moves_to_states seen_states possible_states initial_state moves =
         legal_moves_to_states seen_states possible_states initial_state moves'
       )
 
-
-let get_scores state =
-  List.fold_left (+) 0 (state.depot)
-
-
 let get_biggest_score possible_states =
   States.fold
     (fun x acc ->
@@ -342,7 +341,7 @@ let rec solve' state game seen_states possible_states =
     (* on récupère tous les coups possibles *)
     let moves = legal_moves state game in
 
-    (*let _ = print_moves moves in*)
+    let _ = print_moves moves in
 
     (* on ajoute aux états possibles les états ne faisant pas partie des états vus *)
     let possible_states =
