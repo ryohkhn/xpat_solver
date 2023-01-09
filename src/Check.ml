@@ -64,7 +64,7 @@ let pop_card state x =
            depot = state.depot;
            nbCol = state.nbCol;
            nbReg = state.nbReg;
-           history = None},true
+           history = state.history },true
         else rec_pop_cols (n+1)
       with Failure _ -> rec_pop_cols (n+1)
   in
@@ -79,7 +79,7 @@ let pop_card state x =
         depot = state.depot ;
         nbCol = state.nbCol ;
         nbReg = state.nbReg ;
-        history = None},true
+        history = state.history },true
     else rec_pop_regs (n+1)
   in rec_pop_regs 0
 
@@ -96,7 +96,7 @@ let push_card state x y =
                               (Option.get state.registres) n (Some card)) ;
           depot = state.depot ;
           nbCol = state.nbCol ; nbReg = state.nbReg ;
-          history = None }
+          history = state.history }
       else rec_push_regs (n+1)
     in rec_push_regs 0
   else
@@ -111,7 +111,7 @@ let push_card state x y =
             depot = state.depot ;
             nbCol = state.nbCol ;
             nbReg = state.nbReg ;
-            history = None }
+            history = state.history }
         else if y <> "V" && List.hd col = int_of_string y
         then
           { colonnes = FArray.set state.colonnes n
@@ -120,7 +120,7 @@ let push_card state x y =
             depot = state.depot ;
             nbCol = state.nbCol ;
             nbReg = state.nbReg ;
-            history = None}
+            history = state.history }
         else rec_push_columns (n+1)
       with Failure _ | Not_found -> rec_push_columns (n+1)
   in Some (rec_push_columns 0)
@@ -196,7 +196,7 @@ let normalise state =
           depot = update_state (new_state.depot) index;
           nbCol = new_state.nbCol ;
           nbReg = new_state.nbReg ;
-          history = None
+          history = new_state.history ;
         }
         in
         normalise_rec (count+1) new_state'

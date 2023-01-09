@@ -245,7 +245,7 @@ let print_history state =
   )
   else
     (
-    List.iter (fun s -> print_string s) (Option.get hist);
+    List.iter (fun s -> print_string (s ^ "; ")) (Option.get hist);
     print_string "\n";
   )
 
@@ -262,12 +262,13 @@ let rec legal_moves_to_states seen_states possible_states initial_state moves =
     let new_state = Check.add_to_history new_state x in
 
     print_string (State.state_to_string new_state);
-    print_history new_state;
+    (*print_history new_state;*)
 
     print_states seen_states;
 
     let res = compare_state initial_state new_state in
     Printf.printf "compare init et new %d\n" res;
+
 
     if not(States.mem new_state seen_states) then
       let possible_states = States.add new_state possible_states in
@@ -297,7 +298,7 @@ let get_biggest_score possible_states =
 
 let rec solve' state game seen_states possible_states =
   (* récursion sur tous les états possibles *)
-  let rec solve'' possible_states =
+  let rec solve'' seen_states possible_states =
     (* si n'il y a plus d'états possibles on renvoit None *)
     if States.is_empty possible_states then
       (None,1)
@@ -314,7 +315,7 @@ let rec solve' state game seen_states possible_states =
       let ret_state,value = solve' new_state game seen_states possible_states in
       (* si ce chemin n'a donné aucun résultat on appelle solve'' sur l'état possible suivant *)
       if ret_state = None then
-        solve'' possible_states
+        solve'' seen_states possible_states
       else
         ret_state,value
   in
@@ -325,7 +326,7 @@ let rec solve' state game seen_states possible_states =
     (* on ajoute aux états vus l'état courant *)
     let seen_states = States.add state seen_states in
 
-    print_history state;
+    (*print_history state;*)
 
     (* on récupère tous les coups possibles *)
     let moves = legal_moves state game in
@@ -340,7 +341,7 @@ let rec solve' state game seen_states possible_states =
     if States.is_empty possible_states then
       (None,1)
     else
-      solve'' possible_states
+      solve'' seen_states possible_states
 
 
 let solve state game =
