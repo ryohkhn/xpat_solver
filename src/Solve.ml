@@ -51,19 +51,18 @@ et en cas d'égalité seulement comparer leurs zones de colonnes respectives (vi
 *)
 
 let compare_state a b =
-  if( Stdlib.compare a.history b.history = 0) then
+  if(Stdlib.compare a.history b.history = 0) then
     0
   else
     let rec compare_cols n =
-      if a.nbCol <> b.nbCol then 1
-      else if n = a.nbCol then 0
+      if n = a.nbCol then 0
       else
         let x = FArray.get a.colonnes n in
         if FArray.exists (fun y -> (Stdlib.compare x y = 0)) (b.colonnes) then compare_cols (n+1)
         else 1
     in
     let rec compare_regs n =
-      if a.registres = None then (if b.registres = None then 0 else 1)
+      if a.registres = None then (if b.registres = None then (compare_cols 0) else 1)
       else if n = a.nbReg then compare_cols 0
       else
         let x = FArray.get (Option.get a.registres) n in
@@ -150,7 +149,7 @@ let legal_moves state game =
   legal_column_moves state list game
 
 let print_moves moves =
-  let _ = Printf.printf "Coups possibles :\n" in
+  let _ = Printf.printf "Coups possibles :\n " in
   let rec print_moves' moves =
     match moves with
       [] -> None
@@ -275,7 +274,10 @@ let rec legal_moves_to_states seen_states possible_states initial_state moves =
 
     let res = compare_state initial_state new_state in
     Printf.printf "compare init et new %d\n" res;
-
+(*
+    let _ = print_string (State.state_to_string  initial_state) in
+    let _ = print_string (State.state_to_string  new_state) in
+*)
 
     if not(States.mem new_state seen_states) then
       let possible_states = States.add new_state possible_states in
