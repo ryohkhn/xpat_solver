@@ -41,7 +41,10 @@ let winning_state state =
 
 let treat_game conf =
   let _ = conf.seed <- 2 in
-  let _ = conf.game <- Baker in 
+  let _ = conf.game <- Baker in
+(*
+  let _ = conf.seed <- 123456 in
+  let _ = conf.game <- Baker in *)
   let permut = XpatRandom.shuffle conf.seed in
   Printf.printf "Voici juste la permutation de graine %d:\n" conf.seed;
   List.iter (fun n -> print_int n; print_string " ") permut;
@@ -59,6 +62,7 @@ let treat_game conf =
             (game_to_string conf.game) permut in
   Printf.printf "%s" (State.state_to_string s) ; 
   let _ = conf.mode <- Search "tests/I/bd123456.sol" in
+
 
 
   let res,n =

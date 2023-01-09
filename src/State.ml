@@ -73,6 +73,10 @@ let empty_state =
   { colonnes = FArray.make 1 []; registres = None;
   depot = [0]; nbCol = 0 ; nbReg = 0 ; history = None }
 
+let test_state value =
+  { colonnes = FArray.make 1 []; registres = None;
+  depot = [value;value;value;value]; nbCol = 0 ; nbReg = 0 ; history = None }
+
 
 (* Print functions *)
 
