@@ -55,11 +55,12 @@ let compare_state a b =
     0
   else
     let rec compare_cols n =
-      if n = a.nbCol then 0
+      if a.nbCol <> b.nbCol then 1
+      else if n = a.nbCol then 0
       else
-        match Stdlib.compare (FArray.get a.colonnes n) (FArray.get b.colonnes n) with
-        | 0 -> compare_cols (n+1)
-        | c -> c
+        let x = FArray.get a.colonnes n in
+        if FArray.exists (fun y -> (Stdlib.compare x y = 0)) (b.colonnes) then compare_cols (n+1)
+        else 1
     in
     match Stdlib.compare a.registres b.registres with
     | 0 -> compare_cols 0
