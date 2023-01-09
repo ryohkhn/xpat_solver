@@ -125,8 +125,8 @@ let push_card state x y =
       with Failure _ | Not_found -> rec_push_columns (n+1)
   in Some (rec_push_columns 0)
 
+
 let process_move state x y game=
-  
   if verify_card state (int_of_string x) = false then (state,false)
   else if verify_dest state (int_of_string x) y game = false then (state,false)
   else
@@ -134,6 +134,15 @@ let process_move state x y game=
     let new_state = push_card tmp_state (int_of_string x) y
     in
     (Option.get new_state,true)
+
+
+let process_move_unchecked state x y =
+  let tmp_state,_ = pop_card state x in
+  let new_state =
+    push_card tmp_state (int_of_string x) y
+  in
+  Option.get new_state
+
 
 let correct_colors card_src card_dest game =
   if game = "BakersDozen" then true
