@@ -40,8 +40,9 @@ let winning_state state =
   depots = [13;13;13;13]
 
 let treat_game conf =
-  let _ = conf.seed <- 2 in
-  let _ = conf.game <- Baker in
+
+  let _ = conf.seed <- 7 in
+  let _ = conf.game <- Seahaven in
 (*
   let _ = conf.seed <- 123456 in
   let _ = conf.game <- Baker in *)
@@ -52,31 +53,33 @@ let treat_game conf =
   List.iter (fun n -> Printf.printf "%s " (Card.to_string (Card.of_num n)))
     permut;
   print_newline ();
-  Printf.printf "Game %s with seed %d \n" 
+  Printf.printf "Game %s with seed %d \n"
     (game_to_string conf.game) (conf.seed) ;
 
 
 
   (*Temporary tests -> to remove*)
-  let s = State.create_state 
+  let s = State.create_state
             (game_to_string conf.game) permut in
-  Printf.printf "%s" (State.state_to_string s) ; 
+  Printf.printf "%s" (State.state_to_string s) ;
   let _ = conf.mode <- Search "tests/I/bd123456.sol" in
 
 
 
-  let res,n =
-    match conf.mode with
-    | Check x ->
-       (Check.check x s (game_to_string conf.game))
-    | Search x -> 
-       (Solve.solve s (game_to_string conf.game))
-  in 
-  if res = None || Option.get res = s then Printf.printf "ECHEC %d" n
-  else if winning_state (Option.get res) then Printf.printf "SUCCES"
-  else Printf.printf "ECHEC %d" n
-  ; 
-    exit n
+  match conf.mode with
+  | Check x ->
+     let res,n = (Check.check x s (game_to_string conf.game)) in
+     if res = None || Option.get res = s then Printf.printf "ECHEC %d" n
+     else if winning_state (Option.get res) then Printf.printf "SUCCES"
+     else Printf.printf "ECHEC %d" n
+     ; exit n
+  | Search x ->
+     let res,n = (Solve.solve s (game_to_string conf.game)) in
+     if n = 1 then Printf.printf "INSOLUBLE"
+     else Printf.printf "SUCCESS"
+     (*TODO handle n = 2 , write to out.sol *)
+     ; exit n
+
 
 let main () =
   Arg.parse

@@ -341,7 +341,7 @@ let rec solve' state game seen_states possible_states =
     (* on récupère tous les coups possibles *)
     let moves = legal_moves state game in
 
-    let _ = print_moves moves in
+    (*let _ = print_moves moves in*)
 
     (* on ajoute aux états possibles les états ne faisant pas partie des états vus *)
     let possible_states =
