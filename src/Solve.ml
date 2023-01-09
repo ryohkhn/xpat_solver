@@ -62,9 +62,16 @@ let compare_state a b =
         if FArray.exists (fun y -> (Stdlib.compare x y = 0)) (b.colonnes) then compare_cols (n+1)
         else 1
     in
-    match Stdlib.compare a.registres b.registres with
-    | 0 -> compare_cols 0
-    | c -> c
+    let rec compare_regs n =
+      if a.registres = None then (if b.registres = None then 0 else 1)
+      else if n = a.nbReg then compare_cols 0
+      else
+        let x = FArray.get (Option.get a.registres) n in
+        if FArray.exists (fun y -> (Stdlib.compare x y = 0))
+             (Option.get b.registres) then compare_regs (n+1)
+        else 1
+    in compare_regs 0
+
 
 
 module States = Set.Make (struct type t = state let compare = compare_state end)
@@ -261,10 +268,10 @@ let rec legal_moves_to_states seen_states possible_states initial_state moves =
     let new_state = Check.normalise new_state in
     let new_state = Check.add_to_history new_state x in
 
-    print_string (State.state_to_string new_state);
+    (*print_string (State.state_to_string new_state);*)
     (*print_history new_state;*)
 
-    print_states seen_states;
+    (*print_states seen_states;*)
 
     let res = compare_state initial_state new_state in
     Printf.printf "compare init et new %d\n" res;
@@ -308,8 +315,8 @@ let rec solve' state game seen_states possible_states =
       (* on retire l'état précédent de la liste des états possibles *)
       let possible_states = States.remove new_state possible_states in
 
-      Printf.printf "état avec le plus grand score\n";
-      print_string (State.state_to_string new_state);
+      Printf.printf "état avec le plus grand score = %d\n" (get_scores new_state);
+      (*print_string (State.state_to_string new_state);*)
 
       (* on appelle récursivement solve' sur cet état *)
       let ret_state,value = solve' new_state game seen_states possible_states in
