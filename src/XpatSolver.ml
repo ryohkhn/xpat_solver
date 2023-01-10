@@ -40,9 +40,8 @@ let winning_state state =
   depots = [13;13;13;13]
 
 let treat_game conf =
-(*
-  let _ = conf.seed <- 8 in
-  let _ = conf.game <- Seahaven in*)
+  let _ = conf.seed <- 2 in
+  let _ = conf.game <- Baker in
 (*
   let _ = conf.seed <- 123456 in
   let _ = conf.game <- Baker in *)

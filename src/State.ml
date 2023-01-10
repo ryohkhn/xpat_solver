@@ -77,6 +77,11 @@ let test_state value =
   { colonnes = FArray.make 1 []; registres = None;
   depot = [value;value;value;value]; nbCol = 0 ; nbReg = 0 ; history = None }
 
+let cpy_state_nohist state =
+  { colonnes = state.colonnes; registres = state.registres;
+  depot = state.depot; nbCol = state.nbCol ; nbReg = state.nbReg ; history = None }
+
+
 
 (* Print functions *)
 
