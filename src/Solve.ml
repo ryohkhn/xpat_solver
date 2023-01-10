@@ -132,6 +132,7 @@ let legal_moves_to_registers state =
   else []
 
 let legal_moves_to_empty state list game=
+  (* In midnight oil no moves to empty column *)
   if (game = "MidnightOil" || game = "mo") then list else
   let rec free_columns state n =
      if n = state.nbCol then false
@@ -146,6 +147,10 @@ let legal_moves_to_empty state list game=
         then empty_col_moves state (n+1) acc
         else
           let card = (List.hd(FArray.get state.colonnes n)) in
+          (* In seahaven no moves to empty column except if the card is a king *)
+          if ( (game = "Seahaven" || game = "st" ) && fst(of_num card) <> 13) then
+          empty_col_moves state (n+1) acc
+          else
           let move = (string_of_int card) ^ " V" in
           empty_col_moves state (n+1) (move::acc)
     in empty_col_moves state 0 list
