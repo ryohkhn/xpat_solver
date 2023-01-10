@@ -1,12 +1,14 @@
+(* type state represents an arrangement of the game *)
 type state = { colonnes : (int list) FArray.t;
                registres : (Card.card option) FArray.t option;
                depot : int list ;
                nbCol : int ; nbReg : int ;
                history : string list option }
 
-let depot state =
-  state.depot
+(* get a state's depot *)
+let depot state = state.depot
 
+(* split a list into two at index n*)
 let split_list n list =
   let rec split_rec n l acc =
     match n,l with
@@ -14,6 +16,7 @@ let split_list n list =
     | n,h::t -> split_rec (n-1) t (h::acc)
   in split_rec n list []
 
+(* move kings in BakersDozen according to the rules *)
 let move_kings perm game =
   if game <> "BakersDozen" then
     perm
@@ -21,6 +24,7 @@ let move_kings perm game =
     let kings,rest = List.partition (fun card -> fst(Card.of_num card) = 13 ) perm in
     List.rev_append (List.rev kings) rest
 
+(* fill a starting_state's columns *)
 let fill_col cols perm game =
   let f = match game with
     | "FreeCell" -> (fun x -> if (x mod 2 = 0) then 7 else 6)
@@ -39,6 +43,7 @@ let fill_col cols perm game =
       fill_aux cols (x+1) rest
   in fill_aux cols 0 perm
 
+(* fill a starting_state's regisres *)
 let fill_reg regs perm =
   let () = Printf.printf "Filling regs\n" in
   match perm with
@@ -48,6 +53,8 @@ let fill_reg regs perm =
   | _ -> failwith "Error"
 
 
+(* initialise a state according to it's game,
+   starting permutation, column and registry numbers *)
 let state_init x y perm game =
   let col, rest = fill_col (FArray.make x []) perm game in
   let reg =
@@ -61,6 +68,7 @@ let state_init x y perm game =
   depot = depot ; nbCol = x ; nbReg = y ; history = None }
   in s
 
+(* create state with game and starting permutation *)
 let create_state game perm =
   match game with
   | "FreeCell"->  state_init 8 4 perm game
@@ -69,14 +77,12 @@ let create_state game perm =
   | "BakersDozen" -> state_init 13 0 perm game
   | _ -> raise Not_found
 
+(* returns empty state *)
 let empty_state =
   { colonnes = FArray.make 1 []; registres = None;
   depot = [0]; nbCol = 0 ; nbReg = 0 ; history = None }
 
-let test_state value =
-  { colonnes = FArray.make 1 []; registres = None;
-  depot = [value;value;value;value]; nbCol = 0 ; nbReg = 0 ; history = None }
-
+(* takes a state and returns the same state with history = None *)
 let cpy_state_nohist state =
   { colonnes = state.colonnes; registres = state.registres;
   depot = state.depot; nbCol = state.nbCol ; nbReg = state.nbReg ; history = None }
@@ -85,6 +91,7 @@ let cpy_state_nohist state =
 
 (* Print functions *)
 
+(* takes a one columns and returns its string description *)
 let une_colonne_to_string colonne =
     let rec aux l =
         match l with
@@ -93,6 +100,7 @@ let une_colonne_to_string colonne =
     in
     aux (Fifo.to_list colonne)
 
+(* takes a state's columns and returns its string description *)
 let cols_to_string cols =
   "\nColonnes : \n" ^
     let rec str_aux cols x =
@@ -108,6 +116,7 @@ let cols_to_string cols =
                ^ str_aux cols (x+1)
     in str_aux cols 0
 
+(* takes a state's registers and returns its string description *)
 let reg_to_string regs =
   if regs = None then "Pas de registres\n\n" else
   "Registres : \n" ^
@@ -120,10 +129,12 @@ let reg_to_string regs =
                         else Card.to_string (Option.get entry) ^ "\n" ^ str_aux regs (x+1)
     in str_aux (Option.get regs) 0
 
+(* takes a state depot and returns its sum *)
 let dep_to_int dep = match dep with
   | trefle::pique::coeur::[carreau] -> trefle,pique,coeur,carreau
   | _ -> raise Not_found
 
+(* takes a state depot and returns its string description *)
 let dep_to_string dep =
   let trefle,pique,coeur,carreau=dep_to_int dep in
   "Depot : " ^
@@ -132,12 +143,14 @@ let dep_to_string dep =
     string_of_int coeur ^ " coeur ; " ^
     string_of_int carreau ^ " carreau \n"
 
+(* takes a state history and returns its string description *)
 let history_to_string history =
   if history = None then ""
   else
     let moves = List.fold_left ( fun x y -> x ^ "\n" ^ y ) "" (List.rev (Option.get history)) in
     String.sub moves 1 ((String.length moves) - 1) 
 
+(* takes a state and returns its string description *)
 let state_to_string state =
   cols_to_string state.colonnes
   ^ reg_to_string state.registres

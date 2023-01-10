@@ -2,6 +2,8 @@ open State
 open Card
 
 
+(* Verify the card is in a position to move, registry or
+column head *)
 let verify_card state x =
   let card = Card.of_num x in
   let rec rec_verify_columns n =
@@ -9,21 +11,22 @@ let verify_card state x =
       false
     else
       try
-        if List.hd(FArray.get state.colonnes n) = x 
+        if List.hd(FArray.get state.colonnes n) = x
          then
            true
         else
           rec_verify_columns (n+1)
       with Failure _ | Not_found -> rec_verify_columns (n+1)
   in
-  let rec rec_verify_regs n = 
+  let rec rec_verify_regs n =
     if n = state.nbReg then rec_verify_columns 0
-    else if (FArray.get (Option.get state.registres) n) = 
-              Some card then 
+    else if (FArray.get (Option.get state.registres) n) =
+              Some card then
       true
     else rec_verify_regs (n+1)
   in rec_verify_regs 0
 
+(* Verify the destination of the move is legal *)
 let verify_dest state x y game =
   let rec rec_verify_columns n =
     if n = state.nbCol then false
@@ -36,30 +39,33 @@ let verify_dest state x y game =
             false
           else
             true
-        else if y <> "V" && List.hd(FArray.get state.colonnes n) = int_of_string y then
+        else if y <> "V" && List.hd(FArray.get state.colonnes n)
+                            = int_of_string y then
           true
         else
           rec_verify_columns (n+1)
       with Failure _ | Not_found -> rec_verify_columns (n+1)
   in
-  let rec rec_verify_regs n = 
+  let rec rec_verify_regs n =
     if n = state.nbReg then false
     else if (FArray.get (Option.get state.registres) n) = None
     then true
     else rec_verify_regs (n+1)
-  in 
+  in
   if y = "T" then rec_verify_regs 0
   else rec_verify_columns 0
 
 
-(* TODO Utiliser FArray.exists ? *)
+(* Return a new state where the part of the move where
+we pop the x card has been executed *)
 let pop_card state x =
   let rec rec_pop_cols n =
     if n = state.nbCol then state,false
     else
       try
         if List.hd(FArray.get state.colonnes n) = (int_of_string x) then
-          {colonnes = FArray.set state.colonnes n (List.tl(FArray.get state.colonnes n));
+          {colonnes = FArray.set state.colonnes n
+                        (List.tl(FArray.get state.colonnes n));
            registres = state.registres;
            depot = state.depot;
            nbCol = state.nbCol;
@@ -72,7 +78,7 @@ let pop_card state x =
     if  n = state.nbReg then rec_pop_cols 0
     else if FArray.get (Option.get state.registres) n =
             Some (Card.of_num (int_of_string x))
-    then 
+    then
       { colonnes = state.colonnes;
         registres = Some (FArray.set
                             (Option.get state.registres) n None) ;
@@ -83,7 +89,8 @@ let pop_card state x =
     else rec_pop_regs (n+1)
   in rec_pop_regs 0
 
-
+(* Return a new state where the part of the move x->y where
+we push the x card has been executed *)
 let push_card state x y =
   let card = Card.of_num x in
   if y = "T" then
@@ -125,7 +132,10 @@ let push_card state x y =
       with Failure _ | Not_found -> rec_push_columns (n+1)
   in Some (rec_push_columns 0)
 
-
+(* Process a move x-> in a certain state with a certain game,
+first we verify that the move is legal with verify_card et verify_dest,
+then we use pop_card and push_card to process the move and return
+the new state *)
 let process_move state x y game=
   if verify_card state (int_of_string x) = false then (state,false)
   else if verify_dest state (int_of_string x) y game = false then (state,false)
@@ -135,7 +145,8 @@ let process_move state x y game=
     in
     (Option.get new_state,true)
 
-
+(* Process a move without checking whether it is legal,
+ used in Solve.ml *)
 let process_move_unchecked state x y =
   let tmp_state,_ = pop_card state x in
   let new_state =
@@ -143,25 +154,25 @@ let process_move_unchecked state x y =
   in
   Option.get new_state
 
-
+(* Depending on the rules of the game, returns whether
+ the two cards have the right two colors to allow a move *)
 let correct_colors card_src card_dest game =
   if game = "BakersDozen" then true
   else if game = "FreeCell" then
   match (snd(card_src),snd(card_dest)) with
-    (Trefle,Pique) | (Pique, Trefle) 
-                     | (Carreau, Coeur) 
+    (Trefle,Pique) | (Pique, Trefle)
+                     | (Carreau, Coeur)
                      | (Coeur, Carreau) -> false
     | (x,y) -> not (x = y)
   else match (snd(card_src),snd(card_dest)) with
-    (Trefle,Pique) | (Pique, Trefle) 
-                     | (Carreau, Coeur) 
+    (Trefle,Pique) | (Pique, Trefle)
+                     | (Carreau, Coeur)
                      | (Coeur, Carreau) -> false
     | (x,y) -> x = y
 
+(* Verify if a move x->y is legal in a certain game,
+   depending on the rules *)
 let verify_move x y game =
-  (*Printf.printf "Processing move %s -> "
-    (Card.to_string (Card.of_num (int_of_string x)));*)
-
   if y = "T" then
     true
   else if y = "V" then
@@ -178,6 +189,7 @@ let verify_move x y game =
       fst(card_src) = fst(card_dest) - 1
     )
 
+(* Normalise a state's depots *)
 let normalise state =
   let update_state depot index =
     let trefle,pique,coeur,carreau = dep_to_int depot in
@@ -213,6 +225,7 @@ let normalise state =
   in
   normalise' state state.depot 0 0
 
+(* Add a move to a state's history *)
 let add_to_history state move =
   let new_history = match state.history with
     | Some h -> Some (move::h)
@@ -230,6 +243,12 @@ let split_move line = match String.split_on_char ' ' line with
   | _ ->  "",""
 
 
+(* Take a file, starting permutation and game name
+   open the file and read line by line
+   for each line process the move, if the move is
+   illegal we return (None,n) with n the move number,
+   if all moves are valid then the check is successful
+ *)
 let check file start game =
   let in_ch = open_in file in
   let rec read_line state n =
@@ -249,7 +268,8 @@ let check file start game =
         (None,n)
       else
         let normalised_state = normalise new_state in
-        let _ = Printf.printf "Normalised State : \n %s \n" (state_to_string normalised_state) in
+        let _ = Printf.printf "Normalised State : \n %s \n"
+                  (state_to_string normalised_state) in
         read_line normalised_state (n+1);
   in
   read_line (normalise start) 1
