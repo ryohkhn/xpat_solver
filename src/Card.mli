@@ -11,6 +11,7 @@ type cardnum = int (* 0..51 *)
 
 val of_num : cardnum -> card
 val to_num : card -> cardnum
+val to_num' : card option -> cardnum
 
 (** Display of a card *)
 

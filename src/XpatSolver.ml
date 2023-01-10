@@ -41,8 +41,8 @@ let winning_state state =
 
 let treat_game conf =
 
-  let _ = conf.seed <- 4 in
-  let _ = conf.game <- Midnight in
+  let _ = conf.seed <- 2 in
+  let _ = conf.game <- Baker in
 (*
   let _ = conf.seed <- 123456 in
   let _ = conf.game <- Baker in *)
