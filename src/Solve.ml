@@ -89,7 +89,7 @@ let compare_state' a b =
   let compare_regs n =
     if a.registres <> b.registres then
       -1
-    else if a.registres = b.registres || n = a.nbReg then
+    else if n = a.nbReg then
       compare_cols 0
     else
       let tmp = FArray.to_list (Option.get a.registres) in
@@ -107,7 +107,7 @@ let compare_state' a b =
     compare_regs 0
 
 
-module States = Set.Make (struct type t = state let compare = compare_state' end)
+module States = Set.Make (struct type t = state let compare = compare_state end)
 
 
 let legal_moves_to_registers state =
@@ -132,7 +132,8 @@ let legal_moves_to_registers state =
   else []
 
 let legal_moves_to_empty state list game=
-  (* In midnight oil no moves to empty column *)
+  (* In midnight oil and baker's dozen no moves to empty column *)
+  if (game = "BakersDozen" || game = "bd") then list else
   if (game = "MidnightOil" || game = "mo") then list else
   let rec free_columns state n =
      if n = state.nbCol then false
@@ -184,9 +185,9 @@ let legal_column_moves state list game =
 
 let legal_moves state game =
   let list =
-    legal_moves_to_empty state (legal_moves_to_registers state) game
-  in
-  legal_column_moves state list game
+    legal_moves_to_registers state in
+    legal_column_moves state (legal_moves_to_empty state list game) game
+
 
 let print_moves moves =
   let _ = Printf.printf "Coups possibles :\n " in
@@ -220,6 +221,13 @@ let print_history state =
     print_string "\n";
   )
 
+let my_mem states state =
+  let rec my_mem' list state = match list with
+    | [] -> false
+    | el::list' -> if (compare_state' el state) = 0 then true else my_mem' list' state
+  in
+  my_mem' (States.elements states) state
+
 
 let rec legal_moves_to_states seen_states possible_states initial_state moves =
   match moves with
@@ -235,14 +243,13 @@ let rec legal_moves_to_states seen_states possible_states initial_state moves =
 
     (*print_string (State.state_to_string new_state);*)
     (*print_history new_state;*)
-
     (*
     let res = compare_state initial_state new_state in
     Printf.printf "compare init et new %d\n" res;
     let _ = print_string (State.state_to_string  initial_state) in
     let _ = print_string (State.state_to_string  new_state) in
-    *)
-    if not(States.mem new_state seen_states) then
+     *)
+    if not(my_mem seen_states new_state) then
       let possible_states = States.add new_state possible_states in
       legal_moves_to_states seen_states possible_states initial_state moves'
     else
@@ -257,13 +264,6 @@ let get_biggest_score possible_states =
          x
     )
     possible_states State.empty_state
-
-let my_mem states state =
-  let rec my_mem' list state = match list with
-    | [] -> false
-    | el::list' -> if (compare_state' el state) = 0 then true else my_mem' list' state
-  in
-  my_mem' (States.elements states) state
 
 let my_remove state states =
   let rec my_remove' list acc = match list with
@@ -283,6 +283,7 @@ let rec solve' state game seen_states possible_states =
     if States.is_empty possible_states then
       None,1,seen_states
     else
+
       (* on choisit l'état avec le score le plus élevé *)
       let new_state = get_biggest_score possible_states in
       (* on retire l'état précédent de la liste des états possibles *)
@@ -294,10 +295,10 @@ let rec solve' state game seen_states possible_states =
       let _ = Printf.printf "Apres : " in
       let _ = print_states possible_states in *)
 
-      (* Printf.printf "Etat avec le plus grand score = %d\n" (get_scores new_state); *)
+      (* Printf.printf "Etat avec le plus grand score = %d\n" (get_scores new_state);*)
       (* on appelle récursivement solve' sur cet état *)
-      (* print_string "Nouvel état :*****************************************************\n";
-         print_string (State.state_to_string new_state); *)
+      (*print_string "Nouvel état :*****************************************************\n";
+         print_string (State.state_to_string new_state);*)
       let ret_state,value,seen_states = solve' new_state game seen_states possible_states in
       (* si ce chemin n'a donné aucun résultat on appelle solve'' sur l'état possible suivant *)
       if ret_state = None then
@@ -319,7 +320,7 @@ let rec solve' state game seen_states possible_states =
     let possible_states =
       legal_moves_to_states seen_states possible_states state moves
     in
-    (* print_states seen_states; *)
+     print_states seen_states;
     (* Si aucune prochaine branche est possible on arrête *)
     if States.is_empty possible_states then
       None,1,seen_states
