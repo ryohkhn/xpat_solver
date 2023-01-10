@@ -31,7 +31,6 @@ type cardnum = int (* 0..51 *)
 
 let of_num n = (n lsr 2)+1, suit_of_num (n land 3)
 let to_num (rk,s) = num_of_suit s + (rk-1) lsl 2
-let to_num (rk,s) = num_of_suit s + (rk-1) lsl 2
 let to_num' n = match n with
   | Some (rk,s) -> num_of_suit s + (rk-1) lsl 2
   | None -> -1

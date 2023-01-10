@@ -148,7 +148,7 @@ let history_to_string history =
   if history = None then ""
   else
     let moves = List.fold_left ( fun x y -> x ^ "\n" ^ y ) "" (List.rev (Option.get history)) in
-    String.sub moves 1 ((String.length moves) - 1) 
+    String.sub moves 1 ((String.length moves) - 1)
 
 (* takes a state and returns its string description *)
 let state_to_string state =
