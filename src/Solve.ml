@@ -54,6 +54,11 @@ let get_scores state =
   List.fold_left (+) 0 (state.depot)
 
 let compare_state a b =
+  let comp = Stdlib.compare a.registres b.registres in
+  if (comp = 0) then
+    Stdlib.compare a.colonnes b.colonnes
+  else comp
+(*
   if (get_scores a <> get_scores b) then 1 else
   if(Stdlib.compare a.history b.history = 0) then
     0
@@ -74,6 +79,7 @@ let compare_state a b =
              (Option.get b.registres) then compare_regs (n+1)
         else 1
     in compare_regs 0
+*)
 
 let compare_state' a b =
   let compare_cols n =
@@ -249,7 +255,7 @@ let rec legal_moves_to_states seen_states possible_states initial_state moves =
     let _ = print_string (State.state_to_string  initial_state) in
     let _ = print_string (State.state_to_string  new_state) in
      *)
-    if not(my_mem seen_states new_state) then
+    if not(States.mem new_state seen_states) then
       let possible_states = States.add new_state possible_states in
       legal_moves_to_states seen_states possible_states initial_state moves'
     else
@@ -275,7 +281,7 @@ let my_remove state states =
   in
   my_remove' (States.elements states) States.empty
 
-
+(*
 let rec solve' state game seen_states possible_states =
   (* récursion sur tous les états possibles *)
   let rec solve'' seen_states possible_states =
@@ -287,18 +293,17 @@ let rec solve' state game seen_states possible_states =
       (* on choisit l'état avec le score le plus élevé *)
       let new_state = get_biggest_score possible_states in
       (* on retire l'état précédent de la liste des états possibles *)
-      (* let _ = Printf.printf "\n***\nAvant : " in
-      let _ = print_states possible_states in *)
-      let a' = my_mem possible_states new_state in
-      let possible_states = my_remove new_state possible_states in
-      (* let possible_states = States.remove new_state possible_states in
+      let _ = Printf.printf "\n***\nAvant : " in
+      let _ = print_states possible_states in
+      let a' = States.mem new_state possible_states in
+      let possible_states = States.remove new_state possible_states in
       let _ = Printf.printf "Apres : " in
-      let _ = print_states possible_states in *)
+      let _ = print_states possible_states in
 
-      (* Printf.printf "Etat avec le plus grand score = %d\n" (get_scores new_state);*)
+       Printf.printf "Etat avec le plus grand score = %d\n" (get_scores new_state);
       (* on appelle récursivement solve' sur cet état *)
-      (*print_string "Nouvel état :*****************************************************\n";
-         print_string (State.state_to_string new_state);*)
+      print_string "Nouvel état :*****************************************************\n";
+         print_string (State.state_to_string new_state);
       let ret_state,value,seen_states = solve' new_state game seen_states possible_states in
       (* si ce chemin n'a donné aucun résultat on appelle solve'' sur l'état possible suivant *)
       if ret_state = None then
@@ -320,12 +325,27 @@ let rec solve' state game seen_states possible_states =
     let possible_states =
       legal_moves_to_states seen_states possible_states state moves
     in
-     print_states seen_states;
+    (* print_states seen_states;*)
     (* Si aucune prochaine branche est possible on arrête *)
     if States.is_empty possible_states then
       None,1,seen_states
     else
       solve'' seen_states possible_states
+*)
+
+let rec solve' state game seen_states possible_states =
+  let new_state = get_biggest_score possible_states in
+  let moves = legal_moves new_state game in
+  let possible_states = States.remove new_state possible_states in
+  let possible_states = legal_moves_to_states seen_states possible_states new_state moves in
+  let seen_states = States.add new_state seen_states 
+  in
+  if get_scores new_state = 52 then
+    Some new_state,0,seen_states
+  else if States.is_empty possible_states then
+    None,1,seen_states
+  else
+    solve' state game seen_states possible_states
 
 
 
