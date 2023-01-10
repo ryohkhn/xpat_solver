@@ -67,7 +67,8 @@ let treat_game conf =
        ; exit n
   | Search x ->
     let res,n = (Solve.solve s (game_to_string conf.game) config.diff) in
-    if n = 1 then Printf.printf "INSOLUBLE"
+    if n = 2 then Printf.printf "INSOLUBLE"
+    else if n = 1 then Printf.printf "ECHEC"
     else let _ = Printf.printf "SUCCES" in
       let oc = open_out x in
       Printf.fprintf oc "%s\n" (State.history_to_string (Option.get res).history);
