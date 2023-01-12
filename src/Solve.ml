@@ -59,6 +59,7 @@ let legal_moves_to_registers state =
     reg_moves state 0 []
   else []
 
+
 (** Retourne la liste des coups possibles vers
  une colonne vide avec la carte en argument *)
 let process_move_to_empty fun_rec game card n acc =
@@ -90,15 +91,6 @@ let legal_moves_to_empty state list game =
         else
           let card = Option.get card_op in
           process_move_to_empty (reg_col_moves reg) game card n acc
-          (*
-             if game = "Seahaven"
-             && fst(card) <> 13 then
-             process_move_to_empty (reg_col_moves reg) game card n acc
-             reg_col_moves reg (n+1) acc
-             else
-             let move = (string_of_int (to_num card)) ^ " V" in
-             process_move_to_empty (reg_col_moves reg) game card n acc
-             reg_col_moves reg (n+1) (move::acc) *)
     in
     let rec empty_col_moves state n acc =
       if n = state.nbCol then
@@ -111,14 +103,6 @@ let legal_moves_to_empty state list game =
       else
         let card = (List.hd(FArray.get state.colonnes n)) in
         process_move_to_empty (empty_col_moves state) game (of_num card) n acc
-        (*
-           (* In seahaven no moves to empty column except if the card is a king *)
-           if (game = "Seahaven"
-             && fst(of_num card) <> 13) then
-           empty_col_moves state (n+1) acc
-           else
-           let move = (string_of_int card) ^ " V" in
-           empty_col_moves state (n+1) (move::acc) *)
     in
     empty_col_moves state 0 list
   else list
